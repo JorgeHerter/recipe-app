@@ -1,3 +1,7 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> 52853783155cb15173c7b545308661698e6d0637
 A2 Recipe Application (A2_Recipe_App)
 
 This project is a full-fledged web application developed using the Django framework. The primary goal of this application is to allow users to input, store, and search for cooking recipes based on their ingredients, cooking times, and descriptions.
@@ -94,3 +98,9 @@ Access the Admin Dashboard: Go to http://127.0.0.1:8000/admin/ and log in using 
 Backend Framework: Django (Python)
 
 Database: SQLite (default for development)
+<<<<<<< HEAD
+=======
+=======
+# recipe-app
+>>>>>>> 12380658ec9380aed6b81037d30390df3cb038af
+>>>>>>> 52853783155cb15173c7b545308661698e6d0637
