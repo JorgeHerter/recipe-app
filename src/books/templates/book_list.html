@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Book Collection</title>
+    <!-- Simple, clean CSS for display -->
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 20px;
+            background-color: #f4f7f6;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .book-card {
+            background-color: #ecf0f1;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 6px;
+            border-left: 5px solid #3498db;
+        }
+        .book-card h2 {
+            margin-top: 0;
+            color: #34495e;
+            font-size: 1.5em;
+        }
+        .book-card p {
+            margin: 5px 0;
+            font-size: 0.95em;
+        }
+        .price {
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        .best-seller {
+            display: inline-block;
+            background-color: #2ecc71;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Our Current Book Collection</h1>
+
+        <!-- Check if there are any books in the list -->
+        {% if book_list %}
+            <!-- Loop through each book object in the list -->
+            {% for book in book_list %}
+                <div class="book-card">
+                    <h2>
+                        {{ book.title }}
+                        {% if book.is_best_seller %}
+                            <span class="best-seller">BEST SELLER</span>
+                        {% endif %}
+                    </h2>
+                    <p><strong>Author:</strong> {{ book.author }}</p>
+                    <p class="price">Price: ${{ book.price }}</p>
+                    <p>
+                        {{ book.description|truncatechars:150 }} 
+                        <!-- |truncatechars:150 limits the description to 150 characters -->
+                    </p>
+                </div>
+            {% endfor %}
+        {% else %}
+            <!-- Message if the list is empty -->
+            <p>No books are currently in the collection. Please add some via the Admin.</p>
+        {% endif %}
+
+        <p><a href="/admin/">Go to Admin Panel</a></p>
+    </div>
+</body>
+</html>

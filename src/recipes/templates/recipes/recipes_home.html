@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe App - Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 60px 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.3em;
+            margin-bottom: 40px;
+        }
+        
+        .welcome-text {
+            color: #555;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .feature {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .feature-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .feature h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-size: 1.2em;
+            margin-top: 30px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍳 Welcome to Recipe App</h1>
+        <p class="subtitle">Your Personal Cookbook</p>
+        
+        <p class="welcome-text">
+            Discover, create, and organize your favorite recipes all in one place. 
+            Whether you're a beginner cook or a seasoned chef, our app makes it easy 
+            to manage your culinary creations.
+        </p>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">📖</div>
+                <h3>Browse Recipes</h3>
+                <p>Explore a collection of delicious recipes</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">➕</div>
+                <h3>Add Your Own</h3>
+                <p>Create and save your favorite recipes</p>
+            </div>
+            
+            <div class="feature">
+                <div class="feature-icon">🥘</div>
+                <h3>Manage Ingredients</h3>
+                <p>Track ingredients and quantities</p>
+            </div>
+        </div>
+        
+        <a href="/admin" class="cta-button">Get Started</a>
+    </div>
+</body>
+</html>
