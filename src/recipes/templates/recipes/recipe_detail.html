@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ recipe.name }} - Recipe Details</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 2rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+        
+        .nav-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .recipe-header {
+            position: relative;
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 400px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .recipe-title-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            color: white;
+            padding: 2rem;
+        }
+        
+        .recipe-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .recipe-content {
+            padding: 2rem;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            gap: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .meta-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+        
+        .meta-label {
+            font-size: 0.85rem;
+            color: #666;
+            font-weight: 500;
+        }
+        
+        .meta-value {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+        
+        .difficulty.Easy {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .difficulty.Medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .difficulty.Intermediate {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+        
+        .difficulty.Hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .section {
+            margin-bottom: 2rem;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 0.5rem;
+        }
+        
+        .ingredients-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .ingredients-list li {
+            padding: 0.8rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+        
+        .ingredients-list li:before {
+            content: "✓";
+            color: #667eea;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .description {
+            line-height: 1.8;
+            color: #555;
+            white-space: pre-wrap;
+        }
+        
+        .back-button {
+            display: inline-block;
+            padding: 0.8rem 1.5rem;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 2rem;
+            transition: background 0.3s;
+        }
+        
+        .back-button:hover {
+            background: #5568d3;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="{% url 'recipes:list' %}" class="nav-link">← Back to All Recipes</a>
+    </header>
+    
+    <div class="container">
+        <div class="recipe-header">
+            {% if recipe.pic %}
+                <img src="{{ recipe.pic.url }}" alt="{{ recipe.name }}" class="recipe-image">
+            {% else %}
+                <div class="recipe-image"></div>
+            {% endif %}
+            <div class="recipe-title-overlay">
+                <h1 class="recipe-title">{{ recipe.name }}</h1>
+            </div>
+        </div>
+        
+        <div class="recipe-content">
+            <div class="recipe-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Cooking Time</span>
+                    <span class="meta-value">⏱️ {{ recipe.cooking_time }} minutes</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Ingredients</span>
+                    <span class="meta-value">🥘 {{ ingredients_list|length }} items</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Difficulty</span>
+                    <span class="difficulty {{ recipe.difficulty }}">{{ recipe.difficulty }}</span>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">🛒 Ingredients</h2>
+                <ul class="ingredients-list">
+                    {% for ingredient in ingredients_list %}
+                        <li>{{ ingredient }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">📝 Instructions</h2>
+                <p class="description">{{ recipe.description }}</p>
+            </div>
+            
+            <a href="{% url 'recipes:list' %}" class="back-button">← Back to All Recipes</a>
+        </div>
+    </div>
+</body>
+</html>

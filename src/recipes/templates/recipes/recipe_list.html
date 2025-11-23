@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Recipes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .nav-link {
+            color: white;
+            text-decoration: none;
+            opacity: 0.9;
+            transition: opacity 0.3s;
+        }
+        
+        .nav-link:hover {
+            opacity: 1;
+            text-decoration: underline;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .recipe-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        
+        .recipe-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+        
+        .recipe-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+        }
+        
+        .recipe-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .recipe-content {
+            padding: 1.5rem;
+        }
+        
+        .recipe-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+        
+        .recipe-meta {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #666;
+        }
+        
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .difficulty {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+        
+        .difficulty.Easy {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .difficulty.Medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .difficulty.Intermediate {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+        
+        .difficulty.Hard {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .no-recipes {
+            text-align: center;
+            padding: 3rem;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>All Recipes</h1>
+        <p><a href="{% url 'recipes:home' %}" class="nav-link">← Back to Home</a></p>
+    </header>
+    
+    <div class="container">
+        {% if recipes %}
+            <div class="recipe-grid">
+                {% for recipe in recipes %}
+                    <a href="{% url 'recipes:detail' recipe.pk %}" class="recipe-card">
+                        {% if recipe.pic %}
+                            <img src="{{ recipe.pic.url }}" alt="{{ recipe.name }}" class="recipe-image">
+                        {% else %}
+                            <div class="recipe-image"></div>
+                        {% endif %}
+                        <div class="recipe-content">
+                            <h2 class="recipe-title">{{ recipe.name }}</h2>
+                            <div class="recipe-meta">
+                                <span class="meta-item">⏱️ {{ recipe.cooking_time }} min</span>
+                                <span class="meta-item">🥘 {{ recipe.get_ingredients_list|length }} ingredients</span>
+                            </div>
+                            <span class="difficulty {{ recipe.difficulty }}">{{ recipe.difficulty }}</span>
+                        </div>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-recipes">
+                <h2>No recipes yet!</h2>
+                <p>Add some recipes through the admin panel to get started.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

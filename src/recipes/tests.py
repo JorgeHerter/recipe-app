@@ -1,86 +1,150 @@
-from django.test import TestCase
-from .models import Ingredient, Recipe, RecipeIngredient
+from django.test import TestCase, Client
+from django.urls import reverse
+from .models import Recipe
 
-# --- Test Ingredient Model ---
-class IngredientModelTest(TestCase):
-    def setUp(self):
-        self.ingredient = Ingredient.objects.create(name='Flour')
-
-    def test_ingredient_creation(self):
-        self.assertTrue(isinstance(self.ingredient, Ingredient))
-        self.assertEqual(self.ingredient.name, 'Flour')
-
-    def test_ingredient_str(self):
-        self.assertEqual(str(self.ingredient), 'Flour')
-
-
-# --- Test Recipe Model ---
 class RecipeModelTest(TestCase):
+    """Test Recipe model"""
+    
+    def setUpTestData():
+        """Set up non-modified objects used by all test methods"""
+        Recipe.objects.create(
+            name='Test Recipe',
+            ingredients='ingredient1, ingredient2, ingredient3',
+            cooking_time=15,
+            description='Test description'
+        )
+    
+    def test_recipe_name(self):
+        """Test recipe name field"""
+        recipe = Recipe.objects.get(id=1)
+        field_label = recipe._meta.get_field('name').verbose_name
+        self.assertEqual(field_label, 'name')
+    
+    def test_recipe_name_max_length(self):
+        """Test recipe name max length"""
+        recipe = Recipe.objects.get(id=1)
+        max_length = recipe._meta.get_field('name').max_length
+        self.assertEqual(max_length, 120)
+    
+    def test_difficulty_calculation_easy(self):
+        """Test difficulty calculation for easy recipe"""
+        recipe = Recipe.objects.create(
+            name='Easy Recipe',
+            ingredients='salt, pepper',
+            cooking_time=5,
+            description='Quick recipe'
+        )
+        self.assertEqual(recipe.difficulty, 'Easy')
+    
+    def test_difficulty_calculation_medium(self):
+        """Test difficulty calculation for medium recipe"""
+        recipe = Recipe.objects.create(
+            name='Medium Recipe',
+            ingredients='ingredient1, ingredient2, ingredient3, ingredient4',
+            cooking_time=8,
+            description='Medium complexity'
+        )
+        self.assertEqual(recipe.difficulty, 'Medium')
+    
+    def test_difficulty_calculation_intermediate(self):
+        """Test difficulty calculation for intermediate recipe"""
+        recipe = Recipe.objects.create(
+            name='Intermediate Recipe',
+            ingredients='ingredient1, ingredient2, ingredient3, ingredient4',
+            cooking_time=20,
+            description='More complex'
+        )
+        self.assertEqual(recipe.difficulty, 'Intermediate')
+    
+    def test_difficulty_calculation_hard(self):
+        """Test difficulty calculation for hard recipe"""
+        recipe = Recipe.objects.create(
+            name='Hard Recipe',
+            ingredients='ingredient1, ingredient2, ingredient3, ingredient4, ingredient5',
+            cooking_time=45,
+            description='Very complex'
+        )
+        self.assertEqual(recipe.difficulty, 'Hard')
+    
+    def test_get_ingredients_list(self):
+        """Test get_ingredients_list method"""
+        recipe = Recipe.objects.get(id=1)
+        ingredients = recipe.get_ingredients_list()
+        self.assertEqual(len(ingredients), 3)
+        self.assertIn('ingredient1', ingredients)
+    
+    def test_recipe_str_method(self):
+        """Test string representation of recipe"""
+        recipe = Recipe.objects.get(id=1)
+        self.assertEqual(str(recipe), 'Test Recipe')
+
+
+class RecipeViewsTest(TestCase):
+    """Test Recipe views"""
+    
     def setUp(self):
-        # Create an ingredient first
-        self.flour = Ingredient.objects.create(name='Flour')
-
-        # Create a recipe
+        """Set up test client and create test recipes"""
+        self.client = Client()
         self.recipe = Recipe.objects.create(
-            name='Simple Bread',
-            description='A basic bread recipe.',
-            cooking_time=60,
-            difficulty='Easy'
+            name='Test Recipe',
+            ingredients='ingredient1, ingredient2, ingredient3',
+            cooking_time=15,
+            description='Test description'
         )
-        
-    def test_recipe_creation(self):
-        self.assertTrue(isinstance(self.recipe, Recipe))
-        self.assertEqual(self.recipe.name, 'Simple Bread')
-        self.assertEqual(self.recipe.difficulty, 'Easy')
-        
-    def test_recipe_str(self):
-        self.assertEqual(str(self.recipe), 'Simple Bread')
+    
+    def test_home_view(self):
+        """Test home view returns 200"""
+        response = self.client.get(reverse('recipes:home'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'recipes/recipes_home.html')
+    
+    def test_recipe_list_view(self):
+        """Test recipe list view returns 200 and displays recipes"""
+        response = self.client.get(reverse('recipes:list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'recipes/recipe_list.html')
+        self.assertContains(response, 'Test Recipe')
+    
+    def test_recipe_detail_view(self):
+        """Test recipe detail view returns 200 and displays correct recipe"""
+        response = self.client.get(reverse('recipes:detail', args=[self.recipe.pk]))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'recipes/recipe_detail.html')
+        self.assertContains(response, 'Test Recipe')
+        self.assertContains(response, 'ingredient1')
+    
+    def test_recipe_detail_view_invalid_id(self):
+        """Test recipe detail view with invalid id returns 404"""
+        response = self.client.get(reverse('recipes:detail', args=[9999]))
+        self.assertEqual(response.status_code, 404)
+    
+    def test_recipe_list_links_to_detail(self):
+        """Test that recipe list contains links to detail pages"""
+        response = self.client.get(reverse('recipes:list'))
+        detail_url = reverse('recipes:detail', args=[self.recipe.pk])
+        self.assertContains(response, detail_url)
+    
+    def test_home_links_to_list(self):
+        """Test that home page contains link to recipe list"""
+        response = self.client.get(reverse('recipes:home'))
+        list_url = reverse('recipes:list')
+        self.assertContains(response, list_url)
 
-    def test_difficulty_choices(self):
-        # Test a valid choice
-        Recipe.objects.create(name='Hard Stew', description='', cooking_time=120, difficulty='Hard')
-        self.assertEqual(Recipe.objects.get(name='Hard Stew').difficulty, 'Hard')
 
-
-# --- Test RecipeIngredient Model and Relationship ---
-class RecipeIngredientModelTest(TestCase):
-    def setUp(self):
-        self.recipe = Recipe.objects.create(
-            name='Pancakes', description='Fluffy pancakes.', cooking_time=30, difficulty='Medium'
-        )
-        self.ingredient_a = Ingredient.objects.create(name='Milk')
-        self.ingredient_b = Ingredient.objects.create(name='Egg')
-        
-        # Create the intermediary object
-        self.recipe_ingredient = RecipeIngredient.objects.create(
-            recipe=self.recipe,
-            ingredient=self.ingredient_a,
-            amount=250.5,
-            unit='ml'
-        )
-
-    def test_recipe_ingredient_creation(self):
-        self.assertTrue(isinstance(self.recipe_ingredient, RecipeIngredient))
-        self.assertEqual(self.recipe_ingredient.amount, 250.5)
-        self.assertEqual(self.recipe_ingredient.unit, 'ml')
-        self.assertEqual(self.recipe_ingredient.recipe.name, 'Pancakes')
-        self.assertEqual(self.recipe_ingredient.ingredient.name, 'Milk')
-
-    def test_recipe_ingredient_str(self):
-        expected_str = '250.50 ml of Milk in Pancakes'
-        self.assertEqual(str(self.recipe_ingredient), expected_str)
-
-    def test_many_to_many_relationship(self):
-        # Add a second ingredient through the intermediary model
-        RecipeIngredient.objects.create(
-            recipe=self.recipe,
-            ingredient=self.ingredient_b,
-            amount=2,
-            unit='units'
-        )
-        
-        # Check that the recipe now lists both ingredients
-        ingredients_names = [i.name for i in self.recipe.ingredients.all()]
-        self.assertIn('Milk', ingredients_names)
-        self.assertIn('Egg', ingredients_names)
-        self.assertEqual(self.recipe.ingredients.count(), 2)
+class RecipeURLsTest(TestCase):
+    """Test Recipe URLs"""
+    
+    def test_home_url_resolves(self):
+        """Test home URL resolves correctly"""
+        url = reverse('recipes:home')
+        self.assertEqual(url, '/')
+    
+    def test_list_url_resolves(self):
+        """Test list URL resolves correctly"""
+        url = reverse('recipes:list')
+        self.assertEqual(url, '/list/')
+    
+    def test_detail_url_resolves(self):
+        """Test detail URL resolves correctly"""
+        url = reverse('recipes:detail', args=[1])
+        self.assertEqual(url, '/detail/1/')
