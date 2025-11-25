@@ -137,3 +137,5 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 # Make sure you also have STATIC_URL configured
 STATIC_URL = '/static/'
+
+LOGIN_URL = '/login/'

@@ -140,7 +140,12 @@
 <body>
     <header>
         <h1>All Recipes</h1>
-        <p><a href="{% url 'recipes:home' %}" class="nav-link">← Back to Home</a></p>
+        <p>
+            <a href="{% url 'recipes:home' %}" class="nav-link">← Back to Home</a>
+            {% if user.is_authenticated %}
+                | <a href="{% url 'recipes:logout' %}" class="nav-link">Logout 🚪</a>
+            {% endif %}
+        </p>
     </header>
     
     <div class="container">

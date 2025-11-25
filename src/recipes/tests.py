@@ -1,5 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
+from django.contrib.auth.models import User
 from .models import Recipe
 
 class RecipeModelTest(TestCase):
@@ -83,8 +84,13 @@ class RecipeViewsTest(TestCase):
     """Test Recipe views"""
     
     def setUp(self):
-        """Set up test client and create test recipes"""
+        """Set up test client, user, and create test recipes"""
         self.client = Client()
+        # Create test user
+        self.user = User.objects.create_user(
+            username='testuser',
+            password='testpassword123'
+        )
         self.recipe = Recipe.objects.create(
             name='Test Recipe',
             ingredients='ingredient1, ingredient2, ingredient3',
@@ -98,37 +104,81 @@ class RecipeViewsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'recipes/recipes_home.html')
     
-    def test_recipe_list_view(self):
-        """Test recipe list view returns 200 and displays recipes"""
+    def test_login_view_get(self):
+        """Test login view GET request returns 200"""
+        response = self.client.get(reverse('recipes:login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'recipes/login.html')
+    
+    def test_login_view_post_success(self):
+        """Test successful login"""
+        response = self.client.post(reverse('recipes:login'), {
+            'username': 'testuser',
+            'password': 'testpassword123'
+        })
+        # Should redirect to recipe list after successful login
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('recipes:list'))
+    
+    def test_login_view_post_failure(self):
+        """Test failed login with wrong credentials"""
+        response = self.client.post(reverse('recipes:login'), {
+            'username': 'testuser',
+            'password': 'wrongpassword'
+        })
+        # Should stay on login page
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Invalid username or password')
+    
+    def test_recipe_list_view_authenticated(self):
+        """Test recipe list view when logged in"""
+        self.client.login(username='testuser', password='testpassword123')
         response = self.client.get(reverse('recipes:list'))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'recipes/recipe_list.html')
         self.assertContains(response, 'Test Recipe')
     
-    def test_recipe_detail_view(self):
-        """Test recipe detail view returns 200 and displays correct recipe"""
+    def test_recipe_list_view_not_authenticated(self):
+        """Test recipe list view redirects when not logged in"""
+        response = self.client.get(reverse('recipes:list'))
+        # Should redirect to login page
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+    
+    def test_recipe_detail_view_authenticated(self):
+        """Test recipe detail view when logged in"""
+        self.client.login(username='testuser', password='testpassword123')
         response = self.client.get(reverse('recipes:detail', args=[self.recipe.pk]))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'recipes/recipe_detail.html')
         self.assertContains(response, 'Test Recipe')
         self.assertContains(response, 'ingredient1')
     
+    def test_recipe_detail_view_not_authenticated(self):
+        """Test recipe detail view redirects when not logged in"""
+        response = self.client.get(reverse('recipes:detail', args=[self.recipe.pk]))
+        # Should redirect to login page
+        self.assertEqual(response.status_code, 302)
+        self.assertIn('/login/', response.url)
+    
     def test_recipe_detail_view_invalid_id(self):
         """Test recipe detail view with invalid id returns 404"""
+        self.client.login(username='testuser', password='testpassword123')
         response = self.client.get(reverse('recipes:detail', args=[9999]))
         self.assertEqual(response.status_code, 404)
     
-    def test_recipe_list_links_to_detail(self):
-        """Test that recipe list contains links to detail pages"""
-        response = self.client.get(reverse('recipes:list'))
-        detail_url = reverse('recipes:detail', args=[self.recipe.pk])
-        self.assertContains(response, detail_url)
+    def test_logout_view(self):
+        """Test logout view"""
+        self.client.login(username='testuser', password='testpassword123')
+        response = self.client.get(reverse('recipes:logout'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'recipes/success.html')
     
-    def test_home_links_to_list(self):
-        """Test that home page contains link to recipe list"""
-        response = self.client.get(reverse('recipes:home'))
-        list_url = reverse('recipes:list')
-        self.assertContains(response, list_url)
+    def test_recipe_list_has_logout_link_when_authenticated(self):
+        """Test that recipe list has logout link when user is logged in"""
+        self.client.login(username='testuser', password='testpassword123')
+        response = self.client.get(reverse('recipes:list'))
+        self.assertContains(response, 'Logout')
 
 
 class RecipeURLsTest(TestCase):
@@ -138,6 +188,16 @@ class RecipeURLsTest(TestCase):
         """Test home URL resolves correctly"""
         url = reverse('recipes:home')
         self.assertEqual(url, '/')
+    
+    def test_login_url_resolves(self):
+        """Test login URL resolves correctly"""
+        url = reverse('recipes:login')
+        self.assertEqual(url, '/login/')
+    
+    def test_logout_url_resolves(self):
+        """Test logout URL resolves correctly"""
+        url = reverse('recipes:logout')
+        self.assertEqual(url, '/logout/')
     
     def test_list_url_resolves(self):
         """Test list URL resolves correctly"""

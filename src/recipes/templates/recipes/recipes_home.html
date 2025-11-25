@@ -27,6 +27,29 @@
             align-items: center;
             text-align: center;
             padding: 2rem;
+            position: relative;
+        }
+        
+        .login-nav {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+        }
+        
+        .login-btn-nav {
+            padding: 0.7rem 1.5rem;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            font-weight: 500;
+            transition: background 0.3s;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+        
+        .login-btn-nav:hover {
+            background: rgba(255,255,255,0.3);
         }
         
         .hero h1 {
@@ -41,17 +64,35 @@
             max-width: 600px;
         }
         
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        
         .btn {
             display: inline-block;
             padding: 1rem 2.5rem;
-            background: white;
-            color: #667eea;
             text-decoration: none;
             border-radius: 50px;
             font-size: 1.2rem;
             font-weight: bold;
             transition: transform 0.3s, box-shadow 0.3s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .btn-primary {
+            background: white;
+            color: #667eea;
+        }
+        
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            backdrop-filter: blur(10px);
         }
         
         .btn:hover {
@@ -88,9 +129,17 @@
 </head>
 <body>
     <div class="hero">
+        <div class="login-nav">
+            <a href="{% url 'recipes:login' %}" class="login-btn-nav">🔐 Login</a>
+        </div>
+        
         <h1>🍳 Recipe Collection</h1>
         <p>Discover delicious recipes, save your favorites, and create culinary masterpieces</p>
-        <a href="{% url 'recipes:list' %}" class="btn">Explore Recipes</a>
+        
+        <div class="cta-buttons">
+            <a href="{% url 'recipes:login' %}" class="btn btn-primary">Get Started</a>
+            <a href="{% url 'recipes:list' %}" class="btn btn-secondary">Browse Recipes</a>
+        </div>
         
         <div class="features">
             <div class="feature">
