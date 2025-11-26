@@ -152,6 +152,7 @@ def recipe_search(request):
     df = None
     search_performed = False
     
+    # Check if search form is submitted   
     if request.GET:
         search_performed = True
         
@@ -270,3 +271,6 @@ def recipe_search(request):
     }
     
     return render(request, 'recipes/recipe_search.html', context)
+def about_me(request):
+    """About Me page - information about the developer"""
+    return render(request, 'recipes/about_me.html')  
